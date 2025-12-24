@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumi - Boutique Universelle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --bg-gray: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            background-color: #ffffff;
+            color: #202124;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .carousel-item {
+            flex: 0 0 auto;
+            width: 150px;
+            transition: transform 0.2s ease;
+        }
+
+        .category-pill {
+            transition: all 0.2s;
+            border: 1px solid #dadce0;
+        }
+
+        .category-pill.active {
+            background-color: #e8f0fe;
+            color: #1967d2;
+            border-color: #1967d2;
+        }
+
+        .search-bar {
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,.30), 0 1px 3px 1px rgba(60,64,67,.15);
+            transition: box-shadow 0.3s;
+        }
+
+        .explore-card {
+            aspect-ratio: 1/1;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .explore-card:active { transform: scale(0.95); }
+
+        .nav-bottom { border-top: 1px solid #dadce0; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .active-nav-item { color: #1a73e8 !important; }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- Header / Search -->
+    <header class="sticky top-0 bg-white z-50 p-4">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-medium tracking-tight cursor-pointer" onclick="switchTab('home')">
+                <span class="text-[#4285F4]">L</span><span class="text-[#EA4335]">u</span><span class="text-[#FBBC05]">m</span><span class="text-[#4285F4]">i</span><span class="text-[#34A853]">.</span>
+            </h1>
+            <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span id="cart-count" class="absolute top-0 right-0 bg-[#EA4335] text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold hidden">0</span>
+            </button>
+        </div>
+        <div class="search-bar flex items-center bg-white rounded-full px-4 py-2 border border-gray-100">
+            <svg class="text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="main-search" oninput="handleSearch(this.value)" placeholder="Rechercher des articles..." class="w-full outline-none text-sm py-1">
+        </div>
+    </header>
+
+    <!-- Categories Tab (Visible only on Home) -->
+    <div id="category-pills-container" class="flex overflow-x-auto no-scrollbar px-4 py-2 space-x-2">
+        <button onclick="filterByCategory('all')" class="category-pill active px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">Pour vous</button>
+        <button onclick="filterByCategory('clothing')" class="category-pill px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">Vêtements</button>
+        <button onclick="filterByCategory('cookies')" class="category-pill px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">Biscuits</button>
+        <button onclick="filterByCategory('shoes')" class="category-pill px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">Chaussures</button>
+        <button onclick="filterByCategory('used')" class="category-pill px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">Occasions</button>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="mt-4 px-4" id="main-content">
+        
+        <!-- View: Home -->
+        <div id="home-view" class="fade-in">
+            <section class="mb-8 overflow-hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-medium">Vêtements tendances</h2>
+                    <span class="text-xs text-[#1a73e8] font-medium" onclick="filterByCategory('clothing')">Voir tout</span>
+                </div>
+                <div class="flex overflow-x-auto no-scrollbar space-x-4" id="carousel-clothing"></div>
+            </section>
+
+            <section class="mb-8 overflow-hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-medium">Biscuits & Délices</h2>
+                    <span class="text-xs text-[#1a73e8] font-medium" onclick="filterByCategory('cookies')">Voir tout</span>
+                </div>
+                <div class="flex overflow-x-auto no-scrollbar space-x-4" id="carousel-cookies"></div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-lg font-medium mb-3">Articles d'occasion</h2>
+                <div class="grid grid-cols-2 gap-4" id="grid-used-home"></div>
+            </section>
+        </div>
+
+        <!-- View: Explorer -->
+        <div id="explore-view" class="hidden fade-in">
+            <h2 class="text-xl font-medium mb-6">Explorer les rayons</h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div onclick="filterByCategory('clothing')" class="explore-card bg-blue-50 text-blue-700">
+                    <span class="text-4xl mb-2">👕</span>
+                    <span class="font-medium">Mode</span>
+                </div>
+                <div onclick="filterByCategory('cookies')" class="explore-card bg-orange-50 text-orange-700">
+                    <span class="text-4xl mb-2">🍪</span>
+                    <span class="font-medium">Épicerie</span>
+                </div>
+                <div onclick="filterByCategory('shoes')" class="explore-card bg-green-50 text-green-700">
+                    <span class="text-4xl mb-2">👟</span>
+                    <span class="font-medium">Souliers</span>
+                </div>
+                <div onclick="filterByCategory('used')" class="explore-card bg-purple-50 text-purple-700">
+                    <span class="text-4xl mb-2">♻️</span>
+                    <span class="font-medium">Seconde main</span>
+                </div>
+            </div>
+
+            <h2 class="text-lg font-medium mb-4">Pour vous inspirer</h2>
+            <div class="bg-gray-100 rounded-3xl p-6 mb-8 relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-xl font-bold text-gray-800 mb-1">Collection Été</h3>
+                    <p class="text-sm text-gray-500 mb-4">Préparez-vous pour le soleil</p>
+                    <button onclick="filterByCategory('clothing')" class="bg-white px-4 py-2 rounded-full text-xs font-bold shadow-sm">Découvrir</button>
+                </div>
+                <span class="absolute -right-4 -bottom-4 text-8xl opacity-20">☀️</span>
+            </div>
+        </div>
+
+        <!-- View: Results -->
+        <div id="results-view" class="hidden fade-in">
+            <div class="flex items-center justify-between mb-4">
+                <h2 id="results-title" class="text-xl font-medium text-gray-800">Résultats</h2>
+                <button onclick="switchTab('home')" class="text-xs text-gray-400">Retour</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 pb-10" id="results-grid"></div>
+        </div>
+    </main>
+
+    <!-- Navigation Bottom -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white nav-bottom flex justify-around py-3 px-2 z-50">
+        <button id="nav-home" onclick="switchTab('home')" class="flex flex-col items-center active-nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            <span class="text-[10px] mt-1 font-medium">Boutique</span>
+        </button>
+        <button id="nav-explore" onclick="switchTab('explore')" class="flex flex-col items-center text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
+            <span class="text-[10px] mt-1 font-medium">Explorer</span>
+        </button>
+        <button class="flex flex-col items-center text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="text-[10px] mt-1 font-medium">Compte</span>
+        </button>
+    </nav>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm transition-all">
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white p-6 shadow-2xl flex flex-col animate-slide-left">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-medium">Votre Panier</h2>
+                <button onclick="toggleCart()" class="p-2 hover:bg-gray-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div id="cart-items" class="flex-grow overflow-y-auto space-y-6"></div>
+            <div class="border-t pt-6 mt-4">
+                <div class="flex justify-between mb-6">
+                    <span class="text-gray-500">Total estimé</span>
+                    <span id="cart-total" class="font-bold text-xl">0.00 €</span>
+                </div>
+                <button class="w-full bg-[#1a73e8] text-white py-4 rounded-full font-medium shadow-lg active:scale-95 transition-all">
+                    Finaliser la commande
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-sm opacity-0 transition-all pointer-events-none z-[100] shadow-xl">
+        Ajouté au panier !
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "Veste en Jean", price: 45.0, category: "clothing", rating: 4.8, img: "👕" },
+            { id: 2, name: "T-shirt Blanc", price: 19.9, category: "clothing", rating: 4.5, img: "👕" },
+            { id: 3, name: "Sweat à Capuche", price: 34.5, category: "clothing", rating: 4.9, img: "🧥" },
+            { id: 4, name: "Cookies Chocolat", price: 4.5, category: "cookies", rating: 4.7, img: "🍪" },
+            { id: 5, name: "Macarons Parisiens", price: 12.0, category: "cookies", rating: 4.9, img: "🧁" },
+            { id: 6, name: "Sablés Vanille", price: 3.8, category: "cookies", rating: 4.4, img: "🧇" },
+            { id: 7, name: "Caméra Vintage", price: 120.0, category: "used", rating: 4.2, img: "📷" },
+            { id: 8, name: "Livre d'Art", price: 8.0, category: "used", rating: 4.5, img: "📚" },
+            { id: 9, name: "Sneakers Runner", price: 89.0, category: "shoes", rating: 4.6, img: "👟" },
+            { id: 10, name: "Jean Slim", price: 55.0, category: "clothing", rating: 4.3, img: "👖" },
+            { id: 11, name: "Bottes Cuir", price: 110.0, category: "shoes", rating: 4.7, img: "🥾" },
+            { id: 12, name: "Baskets Urbaines", price: 65.0, category: "shoes", rating: 4.5, img: "👟" }
+        ];
+
+        let cart = [];
+        let currentTab = 'home';
+
+        function init() {
+            renderCarousels();
+            updateCartUI();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const home = document.getElementById('home-view');
+            const explore = document.getElementById('explore-view');
+            const results = document.getElementById('results-view');
+            const cats = document.getElementById('category-pills-container');
+            
+            // Nav icons logic
+            document.getElementById('nav-home').classList.toggle('active-nav-item', tab === 'home');
+            document.getElementById('nav-explore').classList.toggle('active-nav-item', tab === 'explore');
+
+            // View logic
+            home.classList.toggle('hidden', tab !== 'home');
+            explore.classList.toggle('hidden', tab !== 'explore');
+            results.classList.add('hidden');
+            
+            // Show categories only on home
+            cats.classList.toggle('hidden', tab !== 'home');
+            
+            if(tab === 'home') filterByCategory('all');
+            window.scrollTo(0,0);
+        }
+
+        function renderCarousels() {
+            document.getElementById('carousel-clothing').innerHTML = products
+                .filter(p => p.category === 'clothing')
+                .map(p => createProductCard(p, 'carousel')).join('');
+            
+            document.getElementById('carousel-cookies').innerHTML = products
+                .filter(p => p.category === 'cookies')
+                .map(p => createProductCard(p, 'carousel')).join('');
+            
+            document.getElementById('grid-used-home').innerHTML = products
+                .filter(p => p.category === 'used')
+                .slice(0, 4)
+                .map(p => createProductCard(p, 'grid')).join('');
+        }
+
+        function createProductCard(p, type) {
+            const cls = type === 'carousel' ? 'carousel-item' : 'w-full';
+            return `
+                <div class="${cls} group" onclick="addToCart(${p.id})">
+                    <div class="product-card-img text-4xl hover:bg-gray-200 transition-colors">
+                        ${p.img}
+                        <div class="absolute bottom-2 right-2 bg-white/90 p-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="3"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        </div>
+                    </div>
+                    <div class="mt-2 px-1">
+                        <h3 class="text-sm font-normal text-gray-800 truncate">${p.name}</h3>
+                        <p class="text-xs font-bold text-gray-900 mt-0.5">${p.price.toFixed(2)} €</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleSearch(q) {
+            if (q.trim().length > 0) {
+                const res = products.filter(p => 
+                    p.name.toLowerCase().includes(q.toLowerCase()) || 
+                    p.category.toLowerCase().includes(q.toLowerCase())
+                );
+                showResults(res, `Recherche : "${q}"`);
+            } else {
+                switchTab(currentTab);
+            }
+        }
+
+        function filterByCategory(cat) {
+            const pills = document.querySelectorAll('.category-pill');
+            pills.forEach(p => p.classList.toggle('active', p.onclick.toString().includes(`'${cat}'`)));
+
+            if (cat === 'all') {
+                switchTab('home');
+                return;
+            }
+
+            const res = products.filter(p => p.category === cat);
+            const titles = {clothing:'Vêtements', cookies:'Biscuits', shoes:'Chaussures', used:'Occasions'};
+            showResults(res, titles[cat]);
+        }
+
+        function showResults(list, title) {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('explore-view').classList.add('hidden');
+            document.getElementById('category-pills-container').classList.add('hidden');
+            
+            const view = document.getElementById('results-view');
+            view.classList.remove('hidden');
+            document.getElementById('results-title').innerText = title;
+            document.getElementById('results-grid').innerHTML = list.length 
+                ? list.map(p => createProductCard(p, 'grid')).join('')
+                : '<p class="col-span-2 text-center text-gray-400 py-20 italic">Aucun article trouvé</p>';
+            window.scrollTo(0,0);
+        }
+
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            cart.push(p);
+            updateCartUI();
+            showToast();
+        }
+
+        function updateCartUI() {
+            const count = document.getElementById('cart-count');
+            const items = document.getElementById('cart-items');
+            count.innerText = cart.length;
+            count.classList.toggle('hidden', cart.length === 0);
+
+            if (!cart.length) {
+                items.innerHTML = '<p class="text-gray-400 text-center mt-20 italic">Votre panier est vide</p>';
+            } else {
+                items.innerHTML = cart.map((p, i) => `
+                    <div class="flex items-center space-x-4 fade-in">
+                        <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-2xl">${p.img}</div>
+                        <div class="flex-grow">
+                            <h4 class="text-sm font-medium">${p.name}</h4>
+                            <p class="text-sm font-bold text-blue-600">${p.price.toFixed(2)} €</p>
+                        </div>
+                        <button onclick="removeFromCart(${i})" class="text-gray-300 hover:text-red-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            const total = cart.reduce((s, p) => s + p.price, 0);
+            document.getElementById('cart-total').innerText = `${total.toFixed(2)} €`;
+        }
+
+        function removeFromCart(i) {
+            cart.splice(i, 1);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-modal').classList.toggle('hidden');
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.style.opacity = '1';
+            t.style.bottom = '110px';
+            setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '96px'; }, 2000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
