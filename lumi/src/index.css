@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --google-blue: #4285F4;
+  --google-red: #EA4335;
+  --google-yellow: #FBBC05;
+  --google-green: #34A853;
+  --bg-gray: #f8f9fa;
+}
+
+body {
+    background-color: #ffffff;
+    color: #202124;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom utilities */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
