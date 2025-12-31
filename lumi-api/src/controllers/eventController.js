@@ -27,7 +27,7 @@ export const createEvent = async (req, res) => {
         });
 
         // Send to Kafka (Ensures connection internally)
-        sendEvent('web-events', userId || data.guestId, {
+        await sendEvent('web-events', userId || data.guestId, {
             ...data,
             id: event.id,
             userId,
