@@ -53,11 +53,11 @@ export default function SearchResults() {
             {loading ? (
                 <div className="text-center py-20 animate-pulse text-gray-400">Recherche en cours...</div>
             ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {products.length > 0 ? (
                         products.map(p => <ProductCard key={p.id} product={p} type="grid" />)
                     ) : (
-                        <p className="col-span-2 text-center text-gray-400 py-20 italic">Aucun article trouvé</p>
+                        <p className="col-span-full text-center text-gray-400 py-20 italic">Aucun article trouvé</p>
                     )}
                 </div>
             )}

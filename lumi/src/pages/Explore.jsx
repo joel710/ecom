@@ -8,20 +8,20 @@ export default function Explore() {
     return (
         <div className="animate-fade-in pb-8">
             <h2 className="text-xl font-medium mb-6">Explorer les rayons</h2>
-            <div className="grid grid-cols-2 gap-4 mb-8">
-                <div onClick={() => handleCategory('clothing')} className="aspect-square rounded-[20px] bg-blue-50 text-blue-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div onClick={() => handleCategory('clothing')} className="aspect-square rounded-[20px] bg-blue-50 text-blue-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform hover:shadow-md">
                     <span className="text-4xl mb-2">👕</span>
                     <span className="font-medium">Mode</span>
                 </div>
-                <div onClick={() => handleCategory('cookies')} className="aspect-square rounded-[20px] bg-orange-50 text-orange-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
+                <div onClick={() => handleCategory('cookies')} className="aspect-square rounded-[20px] bg-orange-50 text-orange-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform hover:shadow-md">
                     <span className="text-4xl mb-2">🍪</span>
                     <span className="font-medium">Épicerie</span>
                 </div>
-                <div onClick={() => handleCategory('shoes')} className="aspect-square rounded-[20px] bg-green-50 text-green-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
+                <div onClick={() => handleCategory('shoes')} className="aspect-square rounded-[20px] bg-green-50 text-green-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform hover:shadow-md">
                     <span className="text-4xl mb-2">👟</span>
                     <span className="font-medium">Souliers</span>
                 </div>
-                <div onClick={() => handleCategory('used')} className="aspect-square rounded-[20px] bg-purple-50 text-purple-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
+                <div onClick={() => handleCategory('used')} className="aspect-square rounded-[20px] bg-purple-50 text-purple-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform hover:shadow-md">
                     <span className="text-4xl mb-2">♻️</span>
                     <span className="font-medium">Seconde main</span>
                 </div>

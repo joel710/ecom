@@ -94,7 +94,7 @@ export default function Home() {
             {used.length > 0 && (
                 <section className="mb-8">
                     <h2 className="text-lg font-medium mb-3">Articles d'occasion</h2>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {used.map(p => (
                             <ProductCard key={p.id} product={p} type="grid" />
                         ))}

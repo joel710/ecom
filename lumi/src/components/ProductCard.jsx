@@ -21,29 +21,42 @@ export default function ProductCard({ product, type = 'grid' }) {
 
     return (
         <div
-            className={`group relative cursor-pointer ${isCarousel ? 'flex-none w-[150px]' : 'w-full'}`}
             onClick={handleProductClick}
+            className={`
+                group bg-white rounded-[24px] overflow-hidden border border-gray-100/50 
+                hover:shadow-xl hover:border-google-blue/20 transition-all duration-300 cursor-pointer
+                ${isCarousel ? 'min-w-[160px] md:min-w-[200px]' : 'w-full'}
+            `}
         >
-            <div className="aspect-square bg-gray-100 rounded-2xl flex items-center justify-center text-4xl hover:bg-gray-200 transition-colors relative overflow-hidden">
+            <div className="relative aspect-square bg-gray-50 flex items-center justify-center text-5xl overflow-hidden">
                 {product.imageUrl && product.imageUrl.startsWith('http') ? (
-                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                    <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                 ) : (
-                    <span>{product.img || '📦'}</span>
+                    <span className="group-hover:scale-125 transition-transform duration-500">
+                        {product.imageUrl || product.img || '📦'}
+                    </span>
                 )}
+
                 <button
                     onClick={handleAddToCart}
-                    className="absolute bottom-2 right-2 bg-white/90 p-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 active:scale-95"
+                    className="absolute bottom-3 right-3 p-2.5 bg-white/90 backdrop-blur-sm shadow-sm rounded-full text-gray-800 hover:bg-google-blue hover:text-white transition-all transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100"
                 >
-                    <Plus className="w-4 h-4 text-google-blue" strokeWidth={3} />
+                    <Plus className="w-5 h-5" />
                 </button>
             </div>
-            <div className="mt-2 px-1">
-                <h3 className="text-sm font-normal text-gray-800 truncate">{product.name}</h3>
-                <p className="text-xs font-bold text-gray-900 mt-0.5">
+
+            <div className="p-3 md:p-4">
+                <h3 className="text-xs md:text-sm font-medium text-gray-800 truncate mb-1">
+                    {product.name}
+                </h3>
+                <p className="text-sm md:text-base font-bold text-google-blue">
                     {product.price.toLocaleString('fr-FR')} FCFA
                 </p>
             </div>
         </div>
     );
 }
-

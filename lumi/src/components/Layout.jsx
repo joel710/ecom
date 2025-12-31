@@ -1,5 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import Header from './Header';
+import Navbar from './Navbar';
 import BottomNav from './BottomNav';
 import CartSidebar from './CartSidebar';
 import { useCart } from '../context/CartContext';
@@ -17,13 +18,26 @@ export default function Layout() {
     };
 
     return (
-        <div className="min-h-screen bg-white pb-24 font-sans">
-            <Header onSearch={handleSearch} />
-            <main className="mt-4 px-4">
+        <div className="min-h-screen bg-white font-sans bg-gray-50/30">
+            {/* Desktop Navigation */}
+            <Navbar onSearch={handleSearch} />
+
+            {/* Mobile Header */}
+            <div className="md:hidden">
+                <Header onSearch={handleSearch} />
+            </div>
+
+            <main className="pb-24 md:pb-8 md:pt-8 px-4 max-w-screen-xl mx-auto w-full">
                 <Outlet />
             </main>
-            <BottomNav />
+
+            {/* Mobile Bottom Nav */}
+            <div className="md:hidden">
+                <BottomNav />
+            </div>
+
             {isCartOpen && <CartSidebar />}
         </div>
     );
 }
+
