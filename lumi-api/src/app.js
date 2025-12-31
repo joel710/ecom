@@ -2,8 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { connectKafka } from './config/kafka.js';
 
 dotenv.config();
+
+// Connect to Kafka
+connectKafka();
+
 
 const app = express();
 
