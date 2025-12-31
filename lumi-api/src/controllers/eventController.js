@@ -1,6 +1,6 @@
 import { prisma } from '../prismaClient.js';
 import { z } from 'zod';
-import { producer } from '../config/kafka.js';
+import { sendEvent } from '../config/kafka.js';
 
 const eventSchema = z.object({
     guestId: z.string(),
@@ -14,7 +14,7 @@ export const createEvent = async (req, res) => {
         const data = eventSchema.parse(req.body);
         const userId = req.user ? req.user.userId : null;
 
-        // Persist to DB
+        // Persist to DB (Always do this first)
         const event = await prisma.event.create({
             data: {
                 guestId: data.guestId,
@@ -26,22 +26,14 @@ export const createEvent = async (req, res) => {
             },
         });
 
-        // Send to Kafka asynchonously
-        producer.send({
-            topic: 'web-events',
-            messages: [
-                {
-                    key: userId || data.guestId,
-                    value: JSON.stringify({
-                        ...data,
-                        id: event.id,
-                        userId,
-                        userAgent: req.headers['user-agent'],
-                        timestamp: event.createdAt
-                    })
-                }
-            ]
-        }).catch(err => console.error('Kafka Send Error:', err));
+        // Send to Kafka (Ensures connection internally)
+        sendEvent('web-events', userId || data.guestId, {
+            ...data,
+            id: event.id,
+            userId,
+            userAgent: req.headers['user-agent'],
+            timestamp: event.createdAt
+        });
 
         res.status(201).json({ status: 'ok', id: event.id });
     } catch (error) {
