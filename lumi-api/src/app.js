@@ -6,11 +6,8 @@ import { connectKafka } from './config/kafka.js';
 
 dotenv.config();
 
-// Connect to Kafka
-connectKafka();
-
-
 const app = express();
+
 
 
 import authRoutes from './routes/authRoutes.js';
