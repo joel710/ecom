@@ -2,7 +2,9 @@ import { Kafka } from 'kafkajs';
 
 const kafka = new Kafka({
     clientId: 'ecommerce-backend',
-    brokers: ['34.78.144.120:9092'], // Updated GCP Public IP
+    brokers: ['34.78.144.120:9092'],
+    connectionTimeout: 10000,
+    authenticationTimeout: 10000,
     retry: {
         initialRetryTime: 100,
         retries: 8
@@ -19,7 +21,7 @@ export const connectKafka = async () => {
         // Add a timeout to the connection attempt
         const connectPromise = producer.connect();
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Kafka Connection Timeout (5s)')), 5000)
+            setTimeout(() => reject(new Error('Kafka Connection Timeout (10s)')), 10000)
         );
 
         await Promise.race([connectPromise, timeoutPromise]);
