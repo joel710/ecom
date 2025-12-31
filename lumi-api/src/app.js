@@ -11,6 +11,7 @@ const app = express();
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import eventRoutes from './routes/eventRoutes.js';
 
 app.use(cors());
 app.use(express.json());
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+app.use('/events', eventRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Lumi API' });

@@ -8,17 +8,21 @@ const orderItemSchema = z.object({
 
 const createOrderSchema = z.object({
     items: z.array(orderItemSchema),
+    guestId: z.string().optional(),
 });
 
 export const createOrder = async (req, res) => {
     try {
-        const userId = req.user.userId;
-        const { items } = createOrderSchema.parse(req.body);
+        const userId = req.user?.userId;
+        const { items, guestId } = createOrderSchema.parse(req.body);
+
+        if (!userId && !guestId) {
+            return res.status(400).json({ error: 'User ID or Guest ID required' });
+        }
 
         let total = 0;
         const orderItemsData = [];
 
-        // Transaction to ensure stock is available and updated atomicaly
         const result = await prisma.$transaction(async (tx) => {
             for (const item of items) {
                 const product = await tx.product.findUnique({ where: { id: item.productId } });
@@ -30,7 +34,6 @@ export const createOrder = async (req, res) => {
                     throw new Error(`Insufficient stock for ${product.name}`);
                 }
 
-                // Decrement stock
                 await tx.product.update({
                     where: { id: product.id },
                     data: { stock: product.stock - item.quantity },
@@ -42,13 +45,14 @@ export const createOrder = async (req, res) => {
                 orderItemsData.push({
                     productId: product.id,
                     quantity: item.quantity,
-                    price: product.price, // unit price at purchase time
+                    price: product.price,
                 });
             }
 
             const order = await tx.order.create({
                 data: {
-                    userId,
+                    userId: userId || null,
+                    guestId: guestId || null,
                     total,
                     status: 'PENDING',
                     items: {
@@ -61,10 +65,7 @@ export const createOrder = async (req, res) => {
             return order;
         });
 
-        // Simulate WhatsApp Message Generation
         const whatsappMessage = generateWhatsAppMessage(result);
-        // In a real app, you would send this to a service or return it to frontend
-
         res.status(201).json({ order: result, whatsappMessage });
 
     } catch (error) {
@@ -74,6 +75,7 @@ export const createOrder = async (req, res) => {
         if (error.message.includes('Insufficient stock') || error.message.includes('not found')) {
             return res.status(400).json({ error: error.message });
         }
+        console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -93,16 +95,16 @@ export const getMyOrders = async (req, res) => {
 };
 
 function generateWhatsAppMessage(order) {
+    const clientName = order.user?.name || "Invité";
     let msg = `🚀 *Nouvelle Commande Lumi !*\n`;
     msg += `---------------------------\n`;
-    msg += `Client : ${order.user.name || order.user.email}\n`;
-    msg += `Téléphone : ${order.user.phone || 'N/A'}\n\n`;
+    msg += `Client : ${clientName}\n`;
+    msg += `ID Commande : ${order.id.slice(0, 8)}\n\n`;
     msg += `Articles :\n`;
     order.items.forEach(item => {
         msg += `- ${item.quantity}x ${item.product.name} (${item.price} FCFA)\n`;
     });
     msg += `\n*Total : ${order.total} FCFA*\n`;
     msg += `---------------------------\n`;
-    msg += `ID: ${order.id}`;
     return msg;
 }

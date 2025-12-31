@@ -47,8 +47,9 @@ model Product {
 
 model Order {
   id        String      @id @default(uuid())
-  userId    String
-  user      User        @relation(fields: [userId], references: [id])
+  userId    String?     // Nullable for Guest orders
+  guestId   String?     // Identifier for guest users
+  user      User?       @relation(fields: [userId], references: [id])
   total     Int
   status    OrderStatus @default(PENDING)
   createdAt DateTime    @default(now())
@@ -64,4 +65,15 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Int
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  guestId   String
+  userId    String?
+  type      String   // PAGE_VIEW, ADD_TO_CART, SEARCH, etc.
+  payload   Json?    // Flexible data, easy to send to Kafka later
+  url       String?
+  userAgent String?
+  createdAt DateTime @default(now())
 }
