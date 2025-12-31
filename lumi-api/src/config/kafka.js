@@ -15,7 +15,7 @@ let isConnected = false;
 export const connectKafka = async () => {
     if (isConnected) return;
     try {
-        console.log(`⏳ Tentative de connexion à Kafka (${kafka.config.brokers[0]})...`);
+        console.log(`⏳ Tentative de connexion à Kafka (34.78.144.120:9092)...`);
         // Add a timeout to the connection attempt
         const connectPromise = producer.connect();
         const timeoutPromise = new Promise((_, reject) =>
