@@ -1,14 +1,16 @@
 import { useCart } from '../context/CartContext';
+import { useProductModal } from '../context/ProductModalContext';
 import { Plus } from 'lucide-react';
 import { trackEvent } from '../services/tracking';
 
 export default function ProductCard({ product, type = 'grid' }) {
     const { addToCart } = useCart();
+    const { openModal } = useProductModal();
     const isCarousel = type === 'carousel';
 
     const handleProductClick = () => {
         trackEvent('PRODUCT_CLICK', { productId: product.id, name: product.name });
-        // Navigate to details page if implemented
+        openModal(product);
     };
 
     const handleAddToCart = (e) => {

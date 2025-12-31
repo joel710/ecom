@@ -27,3 +27,7 @@ export const checkoutViaWhatsApp = async (cartItems, total) => {
         alert("Une erreur est survenue lors de la commande. Veuillez réessayer.");
     }
 };
+export const buyNowViaWhatsApp = async (product) => {
+    const cartItem = { ...product, quantity: 1 };
+    await checkoutViaWhatsApp([cartItem], product.price);
+};
