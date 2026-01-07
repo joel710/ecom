@@ -17,7 +17,7 @@ let isConnected = false;
 export const connectKafka = async () => {
     if (isConnected) return;
     try {
-        console.log(`⏳ Tentative de connexion à Kafka (34.78.144.120:9092)...`);
+        console.log(` Tentative de connexion à Kafka (34.78.144.120:9092)...`);
         // Add a timeout to the connection attempt
         const connectPromise = producer.connect();
         const timeoutPromise = new Promise((_, reject) =>
@@ -27,9 +27,9 @@ export const connectKafka = async () => {
         await Promise.race([connectPromise, timeoutPromise]);
 
         isConnected = true;
-        console.log("✅ Connecté à Kafka avec succès");
+        console.log(" Connecté à Kafka avec succès");
     } catch (err) {
-        console.error("❌ Erreur de connexion Kafka détaillée:", err.message);
+        console.error(" Erreur de connexion Kafka détaillée:", err.message);
         // Do NOT throw here, we want the app to keep running even without Kafka
     }
 };
