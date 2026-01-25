@@ -26,7 +26,8 @@ export const createEvent = async (req, res) => {
             },
         });
 
-        // Send to Kafka (Ensures connection internally)
+        // Send to Kafka (Ensures connection internally) - DISABLED AS KAFKA IS DOWN
+        /*
         await sendEvent('web-events', userId || data.guestId, {
             ...data,
             id: event.id,
@@ -34,6 +35,7 @@ export const createEvent = async (req, res) => {
             userAgent: req.headers['user-agent'],
             timestamp: event.createdAt
         });
+        */
 
         res.status(201).json({ status: 'ok', id: event.id });
     } catch (error) {
