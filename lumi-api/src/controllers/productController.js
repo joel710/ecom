@@ -59,4 +59,38 @@ export const createProduct = async (req, res) => {
     }
 };
 
-// Add update/delete as needed
+export const updateProduct = async (req, res) => {
+    try {
+        if (req.user.role !== 'ADMIN') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { id } = req.params;
+        const data = productSchema.partial().parse(req.body);
+
+        const product = await prisma.product.update({
+            where: { id },
+            data,
+        });
+        res.json(product);
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.errors });
+        }
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const deleteProduct = async (req, res) => {
+    try {
+        if (req.user.role !== 'ADMIN') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { id } = req.params;
+        await prisma.product.delete({ where: { id } });
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
