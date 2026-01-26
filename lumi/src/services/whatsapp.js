@@ -1,7 +1,7 @@
 import { getGuestId } from './tracking';
 import api from './api';
 
-const PHONE_NUMBER = "22501020304"; // Replace with actual number
+const PHONE_NUMBER = "22898212742";
 
 export const checkoutViaWhatsApp = async (cartItems, total) => {
     const guestId = getGuestId();
@@ -10,8 +10,8 @@ export const checkoutViaWhatsApp = async (cartItems, total) => {
     try {
         const response = await api.post('/orders', {
             items: cartItems.map(item => ({
-                productId: item.id, // Assuming product objects have backend ID
-                quantity: item.quantity
+                productId: item.id,
+                quantity: item.quantity || 1
             })),
             guestId
         });
