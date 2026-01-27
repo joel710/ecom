@@ -77,3 +77,23 @@ model Event {
   userAgent String?
   createdAt DateTime @default(now())
 }
+
+model StoreConfig {
+  id                            String  @id @default("default")
+  storeName                     String  @default("Lumi Store")
+  contactEmail                  String  @default("contact@lumi.store")
+  contactPhone                  String  @default("+225 07 00 00 00 00")
+  currency                      String  @default("FCFA")
+  whatsappNumber                String  @default("+225 07 00 00 00 00")
+  whatsappNotificationsEnabled Boolean @default(true)
+  kafkaUrl                      String?
+  whatsappApiKey                String?
+  updatedAt                     DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  icon      String   @default("📦")
+  createdAt DateTime @default(now())
+}
