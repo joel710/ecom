@@ -43,12 +43,22 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     try {
-        // Check if user is admin (req.user is set by authMiddleware)
         if (req.user.role !== 'ADMIN') {
             return res.status(403).json({ error: 'Admin access required' });
         }
 
         const data = productSchema.parse(req.body);
+
+        // Synchronize category: Ensure it exists in the Category table
+        await prisma.category.upsert({
+            where: { name: data.category },
+            update: {}, // No update needed if it exists
+            create: {
+                name: data.category,
+                icon: '📦' // Default icon for on-the-fly categories
+            }
+        });
+
         const product = await prisma.product.create({ data });
         res.status(201).json(product);
     } catch (error) {
@@ -67,6 +77,18 @@ export const updateProduct = async (req, res) => {
 
         const { id } = req.params;
         const data = productSchema.partial().parse(req.body);
+
+        // Synchronize category if it's being updated
+        if (data.category) {
+            await prisma.category.upsert({
+                where: { name: data.category },
+                update: {},
+                create: {
+                    name: data.category,
+                    icon: '📦'
+                }
+            });
+        }
 
         const product = await prisma.product.update({
             where: { id },
