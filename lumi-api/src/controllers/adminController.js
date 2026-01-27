@@ -82,13 +82,69 @@ export const getStats = async (req, res) => {
             color: statusColors[group.status] || 'hsl(var(--muted))'
         }));
 
+        // 5. Recent Orders (Last 5)
+        const recentOrders = await prisma.order.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: {
+                    select: { name: true }
+                }
+            }
+        });
+
+        const recentOrdersData = recentOrders.map(order => ({
+            id: order.id.substring(0, 8), // Short ID for display
+            customer: order.user?.name || 'Client Anonyme',
+            total: order.total,
+            status: order.status,
+            date: order.createdAt.toLocaleString('fr-FR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        }));
+
+        // 6. Top Products (By sales volume)
+        const orderItems = await prisma.orderItem.groupBy({
+            by: ['productId'],
+            _sum: {
+                quantity: true,
+                price: true
+            },
+            orderBy: {
+                _sum: {
+                    quantity: 'desc'
+                }
+            },
+            take: 5
+        });
+
+        const topProductsData = await Promise.all(orderItems.map(async (item) => {
+            const product = await prisma.product.findUnique({
+                where: { id: item.productId },
+                select: { name: true }
+            });
+
+            return {
+                id: item.productId,
+                name: product?.name || 'Produit inconnu',
+                sales: item._sum.quantity,
+                revenue: (item._sum.quantity || 0) * (item._sum.price || 0) / (item._sum.quantity || 1) // Approximation if price varied
+            };
+        }));
+
         res.json({
             revenue: totalRevenue,
             orders: totalOrders,
             averageOrder: averageOrderValue,
             newCustomers: recentUsersCount,
             salesData: dailySales,
-            orderStatusData
+            orderStatusData,
+            recentOrders: recentOrdersData,
+            topProducts: topProductsData
         });
     } catch (error) {
         console.error(error);
