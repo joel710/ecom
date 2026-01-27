@@ -6,19 +6,18 @@ export const getStats = async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
 
+        // 1. Revenue & Orders Summary
         const totalOrders = await prisma.order.count();
-        const confirmedOrders = await prisma.order.findMany({
-            where: { status: 'CONFIRMED' },
-            select: { total: true }
+        const revenueStats = await prisma.order.aggregate({
+            where: {
+                status: { in: ['CONFIRMED', 'SHIPPED'] }
+            },
+            _sum: { total: true }
         });
-        const shippedOrders = await prisma.order.findMany({
-            where: { status: 'SHIPPED' },
-            select: { total: true }
-        });
-
-        const totalRevenue = [...confirmedOrders, ...shippedOrders].reduce((acc, order) => acc + order.total, 0);
+        const totalRevenue = revenueStats._sum.total || 0;
         const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
+        // 2. New Customers (Last 30 days)
         const recentUsersCount = await prisma.user.count({
             where: {
                 createdAt: {
@@ -27,22 +26,69 @@ export const getStats = async (req, res) => {
             }
         });
 
-        // Simple mock for chart data for now, could be improved with real aggregations
-        const salesData = [
-            { name: 'Jan', total: 4000 },
-            { name: 'Feb', total: 3000 },
-            { name: 'Mar', total: 2000 },
-            { name: 'Apr', total: 2780 },
-            { name: 'May', total: 1890 },
-            { name: 'Jun', total: 2390 },
-        ];
+        // 3. Sales Evolution (Last 7 days)
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }).reverse();
+
+        const dailySales = await Promise.all(last7Days.map(async (date) => {
+            const nextDay = new Date(date);
+            nextDay.setDate(date.getDate() + 1);
+
+            const dayRevenue = await prisma.order.aggregate({
+                where: {
+                    status: { in: ['CONFIRMED', 'SHIPPED'] },
+                    createdAt: {
+                        gte: date,
+                        lt: nextDay
+                    }
+                },
+                _sum: { total: true }
+            });
+
+            const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+            return {
+                name: dayNames[date.getDay()],
+                total: dayRevenue._sum.total || 0
+            };
+        }));
+
+        // 4. Order Status Distribution
+        const statusGroups = await prisma.order.groupBy({
+            by: ['status'],
+            _count: { _all: true }
+        });
+
+        const statusLabels = {
+            'PENDING': 'En attente',
+            'CONFIRMED': 'Confirmée',
+            'SHIPPED': 'Expédiée',
+            'CANCELLED': 'Annulée'
+        };
+
+        const statusColors = {
+            'PENDING': 'hsl(38, 92%, 50%)',
+            'CONFIRMED': 'hsl(252, 100%, 67%)',
+            'SHIPPED': 'hsl(142, 76%, 36%)',
+            'CANCELLED': 'hsl(0, 84%, 60%)'
+        };
+
+        const orderStatusData = statusGroups.map(group => ({
+            name: statusLabels[group.status] || group.status,
+            value: group._count._all,
+            color: statusColors[group.status] || 'hsl(var(--muted))'
+        }));
 
         res.json({
             revenue: totalRevenue,
             orders: totalOrders,
             averageOrder: averageOrderValue,
             newCustomers: recentUsersCount,
-            salesData
+            salesData: dailySales,
+            orderStatusData
         });
     } catch (error) {
         console.error(error);
