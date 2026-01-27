@@ -15,6 +15,7 @@ import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
 
 app.use(cors({
     origin: '*',
@@ -28,6 +29,7 @@ app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/events', eventRoutes);
 app.use('/admin', adminRoutes);
+app.use('/categories', categoryRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Lumi API' });
